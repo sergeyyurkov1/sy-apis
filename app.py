@@ -55,7 +55,8 @@ import flask
 from flask import request, jsonify, abort
 
 app = flask.Flask(__name__)
-app.config["DEBUG"] = True
+# app.config["DEBUG"] = True
+server = app.server
 
 @app.route("/api/v1/data", methods=["GET"])
 def data():
@@ -70,4 +71,4 @@ def data():
     else:
         return jsonify(d)
 
-app.run()
+# app.run()
