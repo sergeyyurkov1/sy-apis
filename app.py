@@ -4,20 +4,17 @@ def get_data(id):
     from selenium.webdriver import Chrome
     from selenium.webdriver import ChromeOptions
 
-    from selenium.webdriver.common.keys import Keys
-    from selenium.common.exceptions import ElementClickInterceptedException
-    from selenium.common.exceptions import NoSuchElementException
-    from selenium.common.exceptions import TimeoutException
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-
     chrome_options = ChromeOptions()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("log-level=2")
 
-    driver = Chrome(executable_path=r"C:\Users\Sergey\Desktop\New folder\chromedriver_win32\chromedriver.exe", chrome_options=chrome_options)
+    # Heroku bits
+    chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--no-sandbox")
+
+    driver = Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
 
     url = f"https://flightaware.com/live/flight/{id}"
     driver.get(url)
