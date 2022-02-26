@@ -7,7 +7,7 @@ def get_data(id):
     chrome_options = ChromeOptions()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("log-level=2")
+    # chrome_options.add_argument("log-level=2")
 
     # Heroku bits
     chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
@@ -34,8 +34,10 @@ def get_data(id):
         image_urls = []
         for i in carouselImages:
             image_urls.append(i.get_attribute("src"))
-    except:
-        return False
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(e)
 
     driver.close()
 
