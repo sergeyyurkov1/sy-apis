@@ -20,7 +20,7 @@ def get_data(id):
     driver.get(url)
 
     try:
-        aircraft_type_xpath = r"/html/body/div[1]/div[1]/div[2]/div[4]/div[9]/div[1]/div/div[1]/div[2]"
+        aircraft_type_xpath = r'//*[@id="mainBody"]/div[1]/div[2]/div[4]/div[9]/div[1]/div/div[1]/div[2]'
         aircraft_type = driver.find_element_by_xpath(aircraft_type_xpath).text
 
         airline_xpath = r'//*[@id="mainBody"]/div[1]/div[2]/div[4]/div[9]/div[2]/div/div/div[2]/a'
