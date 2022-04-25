@@ -1,4 +1,6 @@
-def get_data(id):
+from typing import Union
+
+def get_driver():
     import time, random, os
 
     from selenium.webdriver import Chrome
@@ -16,7 +18,16 @@ def get_data(id):
 
     driver = Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
 
+    return driver
+
+
+def get_data(id: str) -> Union[dict, bool]:
+    """Gets aircraft_type, airline, and image_urls from a flight ID"""
+    
+    driver = get_driver()
+
     url = f"https://flightaware.com/live/flight/{id}"
+
     driver.get(url)
 
     try:
@@ -39,6 +50,8 @@ def get_data(id):
         traceback.print_exc()
         print(e)
 
+        return False
+
     driver.close()
 
     exceptions = ["Upgrade account to see tail number", "Are you the operator? Purchase FlightAware Global to see tail number and more."]
@@ -53,24 +66,29 @@ def get_data(id):
 
     return data
 
-import flask
-from flask import request, jsonify, abort
 
-app = flask.Flask(__name__)
-app.config["DEBUG"] = True
+def main() -> None:
+    import flask
+    from flask import request, jsonify, abort
 
-@app.route("/api/v1/data", methods=["GET"])
-def data():
-    if "id" in request.args:
-        id = request.args["id"]
-    else:
-        abort(410)
-    
-    d = get_data(id)
-    if d == False:
-        abort(404)
-    else:
-        return jsonify(d)
+    app = flask.Flask(__name__)
+    # app.config["DEBUG"] = True
+
+    @app.route("/api/v1/data", methods=["GET"])
+    def data():
+        if "id" in request.args:
+            id = request.args["id"]
+        else:
+            abort(400)
+        
+        data = get_data(id)
+        if data == False:
+            abort(404)
+        else:
+            return jsonify(data)
+
+    app.run()
+
 
 if __name__ == "__main__":
-    app.run()
+    main()
