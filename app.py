@@ -98,7 +98,7 @@ class Data(BaseModel):
 #             raise ValidationError
 #         return val
 
-@app.get("/adsb/v1/flight/")
+@app.get("/adsb/v1/flight/", include_in_schema=False)
 @app.get("/adsb/v1/flight/{id}", response_model=Data)
 def data(id: str = Path(..., min_length=1), api_key: APIKey = Depends(get_api_key)): # id: Id = Depends()
     # return {
