@@ -1,3 +1,4 @@
+from turtle import title
 from typing import Union, List
 
 import os
@@ -69,9 +70,9 @@ def get_data(id: str) -> Union[dict, bool]:
     }
 
 
-from fastapi import FastAPI, HTTPException, Security, Depends
+from fastapi import FastAPI, HTTPException, Security, Depends, Path, Body
 from fastapi.security.api_key import APIKeyHeader, APIKey
-from pydantic import BaseModel
+from pydantic import BaseModel, validator, ValidationError
 
 app = FastAPI()
 
@@ -88,11 +89,24 @@ class Data(BaseModel):
     airline: str
     image_urls: List[str]
 
+# class Id(BaseModel):
+#     id: str = Path(...)
+
+#     @validator("id")
+#     def validate(cls, val):
+#         if len(val) == 0:
+#             # raise HTTPException(status_code=400)
+#             raise ValidationError
+#         return val
+
+@app.get("/adsb/v1/flight/")
 @app.get("/adsb/v1/flight/{id}", response_model=Data)
-def data(id: str, api_key: APIKey = Depends(get_api_key)):
-    # if id == "":
-    #     raise HTTPException(status_code=400)
-    
+def data(id: str = Path(..., min_length=1), api_key: APIKey = Depends(get_api_key)): # id: Id = Depends()
+    # return {
+    #     "aircraft_type": "a",
+    #     "airline": "b",
+    #     "image_urls": ["c", "d"]
+    # }
     data = get_data(id)
     if data == False:
         raise HTTPException(status_code=404)
