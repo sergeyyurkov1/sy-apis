@@ -1,7 +1,14 @@
-from typing import Union
+from typing import Union, List
+
+import os, sys
+try:
+    API_KEY = os.environ["API_KEY"]
+except KeyError:
+    API_KEY = "Test" # sys.argv[3]
+API_KEY_NAME = "Authorization"
 
 def get_driver():
-    import time, random, os
+    import os
 
     from selenium.webdriver import Chrome
     from selenium.webdriver import ChromeOptions
@@ -58,37 +65,39 @@ def get_data(id: str) -> Union[dict, bool]:
     if aircraft_type in exceptions:
         aircraft_type = ""
     
-    data = {
+    return {
         "aircraft_type": aircraft_type,
         "airline": airline,
         "image_urls": image_urls
     }
 
-    return data
 
+from fastapi import FastAPI, HTTPException, Security, Depends
+from fastapi.security.api_key import APIKeyHeader, APIKey
+from pydantic import BaseModel
 
-def main() -> None:
-    import flask
-    from flask import request, jsonify, abort
+app = FastAPI()
 
-    app = flask.Flask(__name__)
-    # app.config["DEBUG"] = True
+api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=True)
 
-    @app.route("/api/v1/data", methods=["GET"])
-    def data():
-        if "id" in request.args:
-            id = request.args["id"]
-        else:
-            abort(400)
-        
-        data = get_data(id)
-        if data == False:
-            abort(404)
-        else:
-            return jsonify(data)
+def get_api_key(api_key_header: str = Security(api_key_header)):
+    if api_key_header == API_KEY:
+        return api_key_header
+    else:
+        raise HTTPException(status_code=403)
 
-    app.run()
+class Data(BaseModel):
+    aircraft_type: str
+    airline: str
+    image_urls: List[str]
 
-
-if __name__ == "__main__":
-    main()
+@app.get("/adsb/v1/flight/{id}", response_model=Data)
+def data(id: str, api_key: APIKey = Depends(get_api_key)):
+    # if id == "":
+    #     raise HTTPException(status_code=400)
+    
+    data = get_data(id)
+    if data == False:
+        raise HTTPException(status_code=404)
+    else:
+        return data

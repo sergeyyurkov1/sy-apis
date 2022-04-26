@@ -1,3 +1,5 @@
-Flask
-gunicorn
+# Flask
+# gunicorn
 selenium
+fastapi
+uvicorn[standard]
