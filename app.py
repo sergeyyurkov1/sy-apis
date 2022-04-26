@@ -1,10 +1,7 @@
 from typing import Union, List
 
-import os, sys
-try:
-    API_KEY = os.environ["API_KEY"]
-except KeyError:
-    API_KEY = "Test" # sys.argv[3]
+import os
+API_KEY = os.environ["API_KEY"]
 API_KEY_NAME = "Authorization"
 
 def get_driver():
