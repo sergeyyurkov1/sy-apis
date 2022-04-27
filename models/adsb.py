@@ -1,3 +1,5 @@
+from array import typecodes
+from datetime import date
 from dependencies import *
 from typing import Union, List
 from pydantic import (
@@ -73,3 +75,48 @@ def get_data(id: str) -> Union[dict, bool]:
         "airline": airline,
         "image_urls": image_urls,
     }
+
+
+def get_data_requests(id: str):
+    import requests
+
+    # driver = get_driver()
+
+    url = f"https://flightaware.com/live/flight/{id}"
+
+    # driver.get(url)
+
+    # page_source = driver.page_source
+
+    # headers = {}
+
+    page_source = requests.get(url).text
+
+    import re
+
+    scripts = re.findall(r"<script>(.*)</script>", page_source)
+
+    script = scripts[-1].strip(";").removeprefix("var trackpollBootstrap = ")
+
+    import json
+
+    data = json.loads(script)
+
+    data = data["flights"][next(iter(data["flights"]))]
+
+    aircraft_type = data["aircraft"]["friendlyType"]
+    airline = data["airline"]["shortName"]
+    image_urls = [i["thumbnail"] for i in data["relatedThumbnails"]]
+
+    return {
+        "aircraft_type": aircraft_type,
+        "airline": airline,
+        "image_urls": image_urls,
+    }
+
+    # last_flight = data["flights"][next(iter(data["flights"]))]["activityLog"][
+    #     "flights"
+    # ][-1]
+
+    # origin = last_flight["origin"]["friendlyLocation"]
+    # destination = last_flight["destination"]["friendlyLocation"]
