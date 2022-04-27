@@ -3,3 +3,4 @@
 selenium
 fastapi
 uvicorn[standard]
+requests
