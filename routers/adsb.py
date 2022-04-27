@@ -12,21 +12,24 @@ from models import adsb
 # fmt: on
 
 router = APIRouter()
+
+
 @router.get("/adsb/v1/flight/", include_in_schema=False)
 @router.get("/adsb/v1/flight/{id}", response_model=adsb.Data, tags=["flight_data"])
-def data(id: adsb.Id = Depends(), api_key: APIKey = Depends(get_api_key)): # id: str = Path(..., min_length=1)
-    """
-    """
-    # data = adsb.get_data(id)
-    # if data == False:
-    #     raise HTTPException(status_code=404)
-    # else:
-    #     return data
-    
+def data(
+    id: adsb.Id = Depends(), api_key: APIKey = Depends(get_api_key)
+):  # id: str = Path(..., min_length=1)
+    """ """
+    data = adsb.get_data(id)
+    if data == False:
+        raise HTTPException(status_code=404)
+    else:
+        return data
+
     # Test data
     # ---------
-    return {
-        "aircraft_type": "a",
-        "airline": "b",
-        "image_urls": ["c", "d"]
-    }
+    # return {
+    #     "aircraft_type": "a",
+    #     "airline": "b",
+    #     "image_urls": ["c", "d"]
+    # }
