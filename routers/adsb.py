@@ -17,16 +17,16 @@ router = APIRouter()
 def data(id: adsb.Id = Depends(), api_key: APIKey = Depends(get_api_key)): # id: str = Path(..., min_length=1)
     """
     """
-    data = adsb.get_data(id)
-    if data == False:
-        raise HTTPException(status_code=404)
-    else:
-        return data
+    # data = adsb.get_data(id)
+    # if data == False:
+    #     raise HTTPException(status_code=404)
+    # else:
+    #     return data
     
     # Test data
     # ---------
-    # return {
-    #     "aircraft_type": "a",
-    #     "airline": "b",
-    #     "image_urls": ["c", "d"]
-    # }
+    return {
+        "aircraft_type": "a",
+        "airline": "b",
+        "image_urls": ["c", "d"]
+    }

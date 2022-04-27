@@ -2,8 +2,8 @@ from dependencies import *
 from typing import Union, List
 from pydantic import (
     BaseModel,
+    Field,
     validator,
-    # ValidationError,
 )
 from fastapi import (
     Path,
@@ -15,20 +15,21 @@ class Data(BaseModel):
     airline: str
     image_urls: List[str]
 
+
 class Id(BaseModel):
-    id: str = Path(...)
+    id: str = Path(..., title="Flight ID", example="EVA653")
 
     @validator("id")
     def validate(cls, val):
         if len(val) <= 1:
-            raise HTTPException(status_code=400, detail="id is less than or equal 1 character")
-            # raise ValidationError
+            # raise HTTPException(status_code=400, detail="id is less than or equal 1 character")
+            raise ValueError("is less than or equal 1 character")
         return val
 
 
 def get_data(id: str) -> Union[dict, bool]:
     """Gets aircraft_type, airline, and image_urls from a flight ID"""
-    
+
     driver = get_driver()
 
     url = f"https://flightaware.com/live/flight/{id}"
@@ -36,10 +37,10 @@ def get_data(id: str) -> Union[dict, bool]:
     driver.get(url)
 
     try:
-        aircraft_type_xpath = r'//*[@id="mainBody"]/div[1]/div[2]/div[4]/div[9]/div[1]/div/div[1]/div[2]'
+        aircraft_type_xpath = r'//*[@id="mainBody"]/div[1]/div[1]/div[2]/div[4]/div[9]/div[1]/div/div[1]/div[2]'
         aircraft_type = driver.find_element_by_xpath(aircraft_type_xpath).text
 
-        airline_xpath = r'//*[@id="mainBody"]/div[1]/div[2]/div[4]/div[9]/div[2]/div/div/div[2]/a'
+        airline_xpath = r'//*[@id="mainBody"]/div[1]/div[1]/div[2]/div[4]/div[9]/div[2]/div/div/div[2]/a'
         airline = driver.find_element_by_xpath(airline_xpath).text
 
         # photos_xpath = r'//*[@id="mainBody"]/div[1]/div[2]/div[4]/div[9]/div[4]/div/span/a'
@@ -52,6 +53,7 @@ def get_data(id: str) -> Union[dict, bool]:
             image_urls.append(i.get_attribute("src"))
     except Exception as e:
         import traceback
+
         traceback.print_exc()
         print(e)
 
@@ -59,12 +61,15 @@ def get_data(id: str) -> Union[dict, bool]:
 
     driver.close()
 
-    exceptions = ["Upgrade account to see tail number", "Are you the operator? Purchase FlightAware Global to see tail number and more."]
+    exceptions = [
+        "Upgrade account to see tail number",
+        "Are you the operator? Purchase FlightAware Global to see tail number and more.",
+    ]
     if aircraft_type in exceptions:
         aircraft_type = ""
-    
+
     return {
         "aircraft_type": aircraft_type,
         "airline": airline,
-        "image_urls": image_urls
+        "image_urls": image_urls,
     }
