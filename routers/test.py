@@ -8,8 +8,10 @@ from fastapi import (
 # fmt: on
 
 router = APIRouter()
-@router.get("/test/v1/", tags=["test"])
+
+
+@router.get("/test/v1/", tags=["Test"])
 def data():
     return {
-        "test": "a",
+        "test": "test",
     }

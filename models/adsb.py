@@ -80,16 +80,13 @@ def get_data(id: str) -> Union[dict, bool]:
 def get_data_requests(id: str):
     import requests
 
-    # driver = get_driver()
-
     url = f"https://flightaware.com/live/flight/{id}"
 
+    # driver = get_driver()
     # driver.get(url)
-
     # page_source = driver.page_source
 
     # headers = {}
-
     page_source = requests.get(url).text
 
     import re
@@ -113,10 +110,3 @@ def get_data_requests(id: str):
         "airline": airline,
         "image_urls": image_urls,
     }
-
-    # last_flight = data["flights"][next(iter(data["flights"]))]["activityLog"][
-    #     "flights"
-    # ][-1]
-
-    # origin = last_flight["origin"]["friendlyLocation"]
-    # destination = last_flight["destination"]["friendlyLocation"]

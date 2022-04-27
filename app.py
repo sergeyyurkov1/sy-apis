@@ -29,37 +29,40 @@ app.include_router(
     responses={
         400: {
             "description": "Bad Request",
-            "content": {
-                "application/json": {
-                    "example": {"id": "bar", "value": "The bar tenders"}
-                }
-            },
+            # "content": {"application/json": {"example": {}}},
+        },
+        404: {
+            "description": "Not Found",
+            # "content": {"application/json": {"example": {}}},
         }
     },
 )
 app.include_router(test.router)
 
-# from fastapi.openapi.utils import get_openapi
-# def custom_openapi():
-#     if app.openapi_schema:
-#         return app.openapi_schema
-#     openapi_schema = get_openapi(
-#         title=app.title,
-#         version=app.version,
-#         description=app.description,
-#         routes=app.routes,
-#     )
-#     methods = ["post", "get", "put", "delete"]
-#     for path in openapi_schema["paths"]:
-#         for method in methods:
-#             try:
-#                 del openapi_schema["paths"][path][method]["responses"]["422"]
-#             except KeyError:
-#                 pass
-# for schema in list(openapi_schema["components"]["schemas"]):
-#     if schema == "HTTPValidationError" or schema == "ValidationError":
-#         del openapi_schema["components"]["schemas"][schema]
-#     app.openapi_schema = openapi_schema
-#     return app.openapi_schema
+from fastapi.openapi.utils import get_openapi
 
-# app.openapi = custom_openapi
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="SY's collection of APIs",
+        version="1.0.1",
+        description="Serve as endpoints for my projects",
+        routes=app.routes,
+    )
+    methods = ["post", "get", "put", "delete"]
+    for path in openapi_schema["paths"]:
+        for method in methods:
+            try:
+                del openapi_schema["paths"][path][method]["responses"]["422"]
+            except KeyError:
+                pass
+    for schema in list(openapi_schema["components"]["schemas"]):
+        if schema == "HTTPValidationError" or schema == "ValidationError":
+            del openapi_schema["components"]["schemas"][schema]
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
