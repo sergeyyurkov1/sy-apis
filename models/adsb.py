@@ -2,8 +2,11 @@ from dependencies import *
 from typing import Union, List
 from pydantic import (
     BaseModel,
-    # validator,
-    # ValidationError
+    validator,
+    # ValidationError,
+)
+from fastapi import (
+    Path,
 )
 
 
@@ -12,15 +15,15 @@ class Data(BaseModel):
     airline: str
     image_urls: List[str]
 
-# class Id(BaseModel):
-#     id: str = Path(...)
+class Id(BaseModel):
+    id: str = Path(...)
 
-#     @validator("id")
-#     def validate(cls, val):
-#         if <>:
-#             # raise HTTPException(status_code=400)
-#             raise ValidationError
-#         return val
+    @validator("id")
+    def validate(cls, val):
+        if len(val) <= 1:
+            raise HTTPException(status_code=400, detail="id is less than or equal 1 character")
+            # raise ValidationError
+        return val
 
 
 def get_data(id: str) -> Union[dict, bool]:
