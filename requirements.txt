@@ -2,4 +2,3 @@ selenium
 fastapi
 uvicorn[standard]
 requests
-winreg

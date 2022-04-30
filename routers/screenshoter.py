@@ -22,9 +22,10 @@ router = APIRouter()
     # dependencies=[Security(dependencies.get_api_key)],
 )
 def take_screenshot(
-    site_url: AnyUrl = Query(
-        ..., description="URL of the site to take a screenshot of"
-    ),
+    # site_url: AnyUrl = Query(
+    #     ..., description="URL of the site to take a screenshot of"
+    # ),  # TODO: `winreg` issue
+    site_url: AnyUrl
 ):
     content = screenshoter.take_screenshot(site_url)
     # content = False
