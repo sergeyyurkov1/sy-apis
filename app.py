@@ -45,7 +45,7 @@ app.include_router(
             "content": {"application/json": {}},
         },
         404: {
-            "description": "Flight Not Found",
+            "description": "Not Found",
             "content": {
                 "application/json": {
                     "schema": {"$ref": "#/components/schemas/HTTPValidationError"}
@@ -68,7 +68,7 @@ app.include_router(
                     "schema": {"$ref": "#/components/schemas/HTTPValidationError"}
                 }
             },
-            "description": "",
+            "description": "Bad Request",
         },
     },
 )

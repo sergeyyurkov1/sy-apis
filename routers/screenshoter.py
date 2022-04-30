@@ -19,11 +19,10 @@ router = APIRouter()
     "/screenshoter/v1/screenshot/",
     tags=["Screenshoter"],
     response_class=Response,
-    # dependencies=[Security(dependencies.get_api_key)],
+    dependencies=[Security(dependencies.get_api_key)],
 )
 def get_screenshot(
     site_url: AnyUrl,
-    # api_key: APIKey = Depends(dependencies.get_api_key),
 ):
     content = screenshoter.get_screenshot(site_url)
     content = False

@@ -37,11 +37,10 @@ def data(
     "/adsb/v1/flight/{id}",
     response_model=adsb.Data,
     tags=["ADS-B Tracker"],
-    # dependencies=[Security(get_api_key)],
+    dependencies=[Security(get_api_key)],
 )
 def data_v2(
     id: adsb.Id = Depends(adsb.Id),
-    # api_key: APIKey = Depends(get_api_key),
     # id: str = Path(..., min_length=1)
 ):
     data = adsb.get_data_requests(id.id)
