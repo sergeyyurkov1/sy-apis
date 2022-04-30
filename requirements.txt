@@ -1,6 +1,5 @@
-# Flask
-# gunicorn
 selenium
 fastapi
 uvicorn[standard]
 requests
+winreg
