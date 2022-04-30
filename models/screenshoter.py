@@ -3,7 +3,7 @@ from pydantic import AnyUrl
 from io import BytesIO
 
 
-def get_screenshot(site_url: AnyUrl) -> BytesIO:
+def take_screenshot(site_url: AnyUrl) -> BytesIO:
     try:
         filename = BytesIO()
 

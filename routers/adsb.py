@@ -14,37 +14,54 @@ from models import adsb
 router = APIRouter()
 
 
-@router.get("/adsb/v0/flight/", include_in_schema=False)
+@router.get("/aircraft-data/v0/flight/", include_in_schema=False, deprecated=True)
 @router.get(
-    "/adsb/v0/flight/{id}",
+    "/aircraft-data/v0/flight/{flight_id}",
     response_model=adsb.Data,
     tags=["ADS-B Tracker"],
     dependencies=[Security(get_api_key)],
+    deprecated=True,
 )
-def data(
-    id: adsb.Id = Depends(),
-    # api_key: APIKey = Depends(get_api_key),
-):  # id: str = Path(..., min_length=1)
-    data = adsb.get_data(id.id)
+def get_aircraft_data_v0(
+    flight_id: adsb.FlightId = Depends(adsb.FlightId),
+    # flight_id: str = Path(
+    #     ...,
+    #     description="6-letter flight number",
+    #     example="CKS852",
+    #     min_length=2,
+    #     max_length=6,
+    # )
+):
+    data = adsb.get_data(flight_id.id)
     if data == False:
-        raise HTTPException(status_code=404)
+        raise HTTPException(
+            status_code=404, detail=f"Cannot retreive data for <{flight_id.id}>"
+        )
     else:
         return data
 
 
-@router.get("/adsb/v1/flight/", include_in_schema=False)
+@router.get("/aircraft-data/v1/flight/", include_in_schema=False)
 @router.get(
-    "/adsb/v1/flight/{id}",
+    "/aircraft-data/v1/flight/{flight_id}",
     response_model=adsb.Data,
     tags=["ADS-B Tracker"],
     dependencies=[Security(get_api_key)],
 )
-def data_v2(
-    id: adsb.Id = Depends(adsb.Id),
-    # id: str = Path(..., min_length=1)
+def get_aircraft_data_v1(
+    flight_id: adsb.FlightId = Depends(adsb.FlightId),
+    # flight_id: str = Path(
+    #     ...,
+    #     description="6-letter flight number",
+    #     example="CKS852",
+    #     min_length=2,
+    #     max_length=6,
+    # )
 ):
-    data = adsb.get_data_requests(id.id)
+    data = adsb.get_data_requests(flight_id.id)
     if data == False:
-        raise HTTPException(status_code=404)
+        raise HTTPException(
+            status_code=404, detail=f"Cannot retreive data for <{flight_id.id}>"
+        )
     else:
         return data

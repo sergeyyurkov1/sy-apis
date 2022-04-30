@@ -1,79 +1,108 @@
 # fmt: off
 from fastapi import FastAPI
-from routers import adsb, test, screenshoter
+from fastapi.openapi.utils import get_openapi
+from fastapi.exceptions import (
+    RequestValidationError,
+    # ValidationError,
+)
+from fastapi.responses import JSONResponse
+
+import json
+
+from routers import (
+    adsb,
+    screenshoter,
+)
 # fmt: on
 
 app = FastAPI(docs_url="/", redoc_url=None)
 # from fastapi.staticfiles import StaticFiles
 # app.mount("/", StaticFiles(directory="ui", html=True), name="ui")
 
-import json
-from fastapi.exceptions import (
-    RequestValidationError,
-    ValidationError,
-)
-from fastapi.responses import JSONResponse
 
-
-# @app.exception_handler(RequestValidationError)
 # @app.exception_handler(ValidationError)
-# async def validation_exception_handler(request, exc):
-#     exc_json = json.loads(exc.json())
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    exc_json = json.loads(exc.json())
 
-#     print(exc_json)
+    import logging
 
-#     content = {"detail": []}
+    logging.basicConfig(
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        # level=logging.INFO,
+        level=logging.DEBUG,
+    )
 
-#     for e, error in enumerate(exc_json):
-#         content["detail"].append(
-#             {"loc": [error["loc"][e], e], "msg": error["msg"], "type": error["type"]}
-#         )
+    logger = logging.getLogger()
+    logger.debug(exc_json)
 
-#     return JSONResponse(content=content, status_code=422)  # 400
+    # print(exc_json)
+
+    # content = {"detail": []}  # message
+    # for e, error in enumerate(exc_json):
+    #     content["detail"].append(
+    #         {"loc": [error["loc"][e], e], "msg": error["msg"], "type": error["type"]}
+    #     )
+
+    # content = {"message": []}  # message
+    # for e, error in enumerate(exc_json):
+    #     content["message"].append(
+    #         {"loc": [error["loc"][e], e], "msg": error["msg"], "type": error["type"]}
+    #     )
+
+    # content = {"detail": exc.errors()}
+
+    content = {"detail": f'{exc_json[-1]["loc"][-1]}: {exc_json[-1]["msg"]}'}
+
+    return JSONResponse(content=content, status_code=422)  # 400
 
 
 app.include_router(
     adsb.router,
     responses={
         # 400: {
-        #     "content": {"application/json": {}},
         #     "description": "Bad Request",
-        #     # "content": {"application/json": {"example": {}}},
+        #     "content": {"application/json": {}},
         # },
         200: {
-            "description": "OK",
+            "description": "",
             "content": {"application/json": {}},
         },
         404: {
-            "description": "Not Found",
+            "description": "Not Found Error",
             "content": {
-                "application/json": {
-                    "schema": {"$ref": "#/components/schemas/HTTPValidationError"}
-                }
+                "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
+            },
+        },
+        422: {
+            "description": "Unprocessable Entity Error",
+            "content": {
+                "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
             },
         },
     },
 )
-app.include_router(test.router)
 app.include_router(
     screenshoter.router,
     responses={
         200: {
+            "description": "",
             "content": {"image/png": {}},
-            "description": "OK",
         },
         400: {
+            "description": "Bad Request Error",
             "content": {
-                "application/json": {
-                    "schema": {"$ref": "#/components/schemas/HTTPValidationError"}
-                }
+                "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
             },
-            "description": "Bad Request",
+        },
+        422: {
+            "description": "Unprocessable Entity Error",
+            "content": {
+                "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
+            },
         },
     },
 )
-
-from fastapi.openapi.utils import get_openapi
 
 
 def custom_openapi():
@@ -81,7 +110,7 @@ def custom_openapi():
         return app.openapi_schema
     openapi_schema = get_openapi(
         title="SY's collection of APIs",
-        version="1.0.1",
+        version="1.1.1",
         description="Serve as endpoints for my projects",
         routes=app.routes,
     )
@@ -99,16 +128,15 @@ def custom_openapi():
     #         del openapi_schema["components"]["schemas"][schema]
 
     for schema in list(openapi_schema["components"]["schemas"]):
-        if schema == "ValidationError":
+        if schema == "ValidationError" or schema == "HTTPValidationError":
             del openapi_schema["components"]["schemas"][schema]
 
-        if schema == "HTTPValidationError":
-            openapi_schema["components"]["schemas"][schema] = {
-                # "title": "ValidationError",
-                "required": ["detail"],
-                "type": "object",
-                "properties": {"detail": {"title": "Detail", "type": "string"}},
-            }
+        openapi_schema["components"]["schemas"]["Error"] = {
+            "title": "Error",
+            "required": ["detail"],
+            "type": "object",
+            "properties": {"detail": {"title": "Error message", "type": "string"}},
+        }
 
     app.openapi_schema = openapi_schema
     return app.openapi_schema
