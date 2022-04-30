@@ -1,5 +1,4 @@
 # fmt: off
-from winreg import QueryInfoKey
 import dependencies
 from pydantic import AnyUrl
 from fastapi import (
@@ -19,13 +18,13 @@ router = APIRouter()
     "/screenshot/v1/site/",
     tags=["Screenshoter"],
     response_class=Response,
-    # dependencies=[Security(dependencies.get_api_key)],
+    dependencies=[Security(dependencies.get_api_key)],
 )
 def take_screenshot(
-    # site_url: AnyUrl = Query(
-    #     ..., description="URL of the site to take a screenshot of"
-    # ),  # TODO: `winreg` issue
-    site_url: AnyUrl
+    site_url: AnyUrl = Query(
+        ..., description="URL of the site to take a screenshot of"
+    ),
+    # site_url: AnyUrl,
 ):
     content = screenshoter.take_screenshot(site_url)
     # content = False
