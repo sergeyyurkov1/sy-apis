@@ -1,5 +1,4 @@
-from array import typecodes
-from datetime import date
+from email import message
 from dependencies import *
 from typing import Union, List
 from pydantic import (
@@ -17,16 +16,36 @@ class Data(BaseModel):
     airline: str
     image_urls: List[str]
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "aircraft_type": "a",
+                "airline": "b",
+                "image_urls": ["c"],
+            }
+        }
 
-class Id(BaseModel):
-    id: str = Path(..., title="Flight ID", example="EVA653")
 
-    @validator("id")
-    def validate(cls, val):
-        if len(val) <= 1:
-            # raise HTTPException(status_code=400, detail="id is less than or equal 1 character")
-            raise ValueError("is less than or equal 1 character")
-        return val
+class Id:
+    def __init__(self, id: str = Path(..., description="Flight ID", example="Test")):
+        self.id = id
+        if len(self.id) <= 1:
+            raise HTTPException(
+                status_code=422, detail="id is less than or equal 1 character"
+            )
+
+
+# class Id(BaseModel):
+#     id: str = Path(..., description="Flight ID")
+
+#     @validator("id")
+#     def validate(cls, val):
+#         if len(val) <= 1:
+#             # raise HTTPException(
+#             #     status_code=400, detail="is less than or equal 1 character"
+#             # )
+#             raise ValueError("is less than or equal 1 character")
+#         return val
 
 
 def get_data(id: str) -> Union[dict, bool]:
