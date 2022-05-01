@@ -1,14 +1,18 @@
 # fmt: off
 from dependencies import *
 
+from db.init import get_db
+from sqlalchemy.orm import Session
+
 from typing import List
 from fastapi import (
     APIRouter,
     Depends,
-    Path
+    Path,
 )
-from fastapi.security.api_key import APIKey
 from models import adsb
+import db.crud.adsb as db_crud_adsb
+
 # fmt: on
 
 router = APIRouter()
@@ -41,11 +45,6 @@ def get_aircraft_data_v0(
         return data
 
 
-from db.init import get_db
-from db import crud
-from sqlalchemy.orm import Session
-
-
 @router.get("/aircraft-data/v1/flight/", include_in_schema=False)
 @router.get(
     "/aircraft-data/v1/flight/{id}",
@@ -64,7 +63,7 @@ def get_aircraft_data_v1(
     #     max_length=6,
     # )
 ):
-    db_data = crud.read_data(db, flight_id=id.id)
+    db_data = db_crud_adsb.read_data(db, flight_id=id.id)
     if db_data == None:
         data = adsb.get_data_requests(id.id)
         # data = adsb.get_data_requests(id)
@@ -76,6 +75,6 @@ def get_aircraft_data_v1(
                 # detail=f"Cannot retreive data for <{id}>",
             )
         else:
-            return crud.create_data(db, flight_id=id.id, data=data)
+            return db_crud_adsb.create_data(db, flight_id=id.id, data=data)
     else:
         return db_data[0]

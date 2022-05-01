@@ -13,32 +13,31 @@ from routers import (
     adsb,
     screenshoter,
 )
-
-import db.models as models
-from db.init import SessionLocal, engine
+from db.init import engine, Base
 # fmt: on
 
 app = FastAPI(docs_url="/", redoc_url=None)
 # from fastapi.staticfiles import StaticFiles
 # app.mount("/", StaticFiles(directory="ui", html=True), name="ui")
 
-models.Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
+
 
 # @app.exception_handler(ValidationError)
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
     exc_json = json.loads(exc.json())
 
-    import logging
+    # import logging
 
-    logging.basicConfig(
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        # level=logging.INFO,
-        level=logging.DEBUG,
-    )
+    # logging.basicConfig(
+    #     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    #     # level=logging.INFO,
+    #     level=logging.DEBUG,
+    # )
 
-    logger = logging.getLogger()
-    logger.debug(exc_json)
+    # logger = logging.getLogger()
+    # logger.debug(exc_json)
 
     # print(exc_json)
 
@@ -64,14 +63,14 @@ async def validation_exception_handler(request, exc):
 app.include_router(
     adsb.router,
     responses={
-        # 400: {
-        #     "description": "Bad Request",
-        #     "content": {"application/json": {}},
-        # },
         200: {
             "description": "",
             "content": {"application/json": {}},
         },
+        # 400: {
+        #     "description": "Bad Request",
+        #     "content": {"application/json": {}},
+        # },
         404: {
             "description": "Not Found Error",
             "content": {

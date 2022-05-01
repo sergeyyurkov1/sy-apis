@@ -27,7 +27,6 @@ def take_screenshot(
     # site_url: AnyUrl,
 ):
     content = screenshoter.take_screenshot(site_url)
-    # content = False
     if content == False:
         raise HTTPException(
             status_code=400, detail=f"Cannot take a screenshot of <{site_url}>"

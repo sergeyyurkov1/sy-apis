@@ -1,8 +1,10 @@
 from dependencies import *
-from typing import Union, List
+from typing import (
+    Union,
+    List,
+)
 from pydantic import (
     BaseModel,
-    Field,
     validator,
 )
 from fastapi import (
@@ -15,7 +17,7 @@ class FlightId(BaseModel):
 
     @validator("id")
     def validate(cls, val):
-        if not 1 < len(val) <= 6:
+        if not 2 <= len(val) <= 6:
             raise HTTPException(
                 status_code=400, detail="ensure this value is 2 - 6 characters long"
             )
@@ -32,7 +34,6 @@ class Data(BaseModel):
         orm_mode = True
         schema_extra = {
             "example": {
-                # "id": "CKS852",
                 "aircraft_type": "Boeing 747-400 (quad-jet)",
                 "airline": "Kalitta Air",
                 "image_urls": [
@@ -50,10 +51,10 @@ class Data(BaseModel):
 #         ),
 #     ):
 #         self.id = flight_id
-#         if not 1 < len(self.id) <= 6:
+#         if not 2 <= len(self.id) <= 6:
 #             raise HTTPException(
 #                 status_code=422,
-#                 detail=f"flight_id: field must be 2 - 6 characters long",
+#                 detail=f"flight_id: ensure this value is 2 - 6 characters long",
 #             )
 
 
@@ -108,7 +109,7 @@ def get_data(id: str) -> Union[dict, bool]:
         return False
 
 
-def get_data_requests(id: str):
+def get_data_requests(id: str) -> Union[dict, bool]:
     """
     Gets `aircraft_type`, `airline`, and `image_urls` from a flight ID
     Uses `requests` library instead of `selenium`
@@ -145,7 +146,6 @@ def get_data_requests(id: str):
         image_urls = [i["thumbnail"] for i in data["relatedThumbnails"]]
 
         return {
-            # "id": id,
             "aircraft_type": aircraft_type,
             "airline": airline,
             "image_urls": image_urls,
