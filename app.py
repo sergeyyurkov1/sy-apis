@@ -13,12 +13,16 @@ from routers import (
     adsb,
     screenshoter,
 )
+
+import db.models as models
+from db.init import SessionLocal, engine
 # fmt: on
 
 app = FastAPI(docs_url="/", redoc_url=None)
 # from fastapi.staticfiles import StaticFiles
 # app.mount("/", StaticFiles(directory="ui", html=True), name="ui")
 
+models.Base.metadata.create_all(bind=engine)
 
 # @app.exception_handler(ValidationError)
 @app.exception_handler(RequestValidationError)

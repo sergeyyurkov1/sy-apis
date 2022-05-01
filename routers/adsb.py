@@ -41,16 +41,22 @@ def get_aircraft_data_v0(
         return data
 
 
+from db.init import get_db
+from db import crud
+from sqlalchemy.orm import Session
+
+
 @router.get("/aircraft-data/v1/flight/", include_in_schema=False)
 @router.get(
-    "/aircraft-data/v1/flight/{flight_id}",
+    "/aircraft-data/v1/flight/{id}",
     response_model=adsb.Data,
     tags=["ADS-B Tracker"],
     dependencies=[Security(get_api_key)],
 )
 def get_aircraft_data_v1(
-    flight_id: adsb.FlightId = Depends(adsb.FlightId),
-    # flight_id: str = Path(
+    id: adsb.FlightId = Depends(adsb.FlightId),
+    db: Session = Depends(get_db)
+    # id: str = Path(
     #     ...,
     #     description="6-letter flight number",
     #     example="CKS852",
@@ -58,10 +64,18 @@ def get_aircraft_data_v1(
     #     max_length=6,
     # )
 ):
-    data = adsb.get_data_requests(flight_id.id)
-    if data == False:
-        raise HTTPException(
-            status_code=404, detail=f"Cannot retreive data for <{flight_id.id}>"
-        )
+    db_data = crud.read_data(db, flight_id=id.id)
+    if db_data == None:
+        data = adsb.get_data_requests(id.id)
+        # data = adsb.get_data_requests(id)
+        if data == False:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Cannot retreive data for <{id.id}>"
+                # status_code=404,
+                # detail=f"Cannot retreive data for <{id}>",
+            )
+        else:
+            return crud.create_data(db, flight_id=id.id, data=data)
     else:
-        return data
+        return db_data[0]

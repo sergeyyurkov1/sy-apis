@@ -1,4 +1,3 @@
-from email import message
 from dependencies import *
 from typing import Union, List
 from pydantic import (
@@ -11,14 +10,29 @@ from fastapi import (
 )
 
 
+class FlightId(BaseModel):
+    id: str = Path(...)
+
+    @validator("id")
+    def validate(cls, val):
+        if not 1 < len(val) <= 6:
+            raise HTTPException(
+                status_code=400, detail="ensure this value is 2 - 6 characters long"
+            )
+            # raise ValueError("ensure this value is 2 - 6 characters long")
+        return val
+
+
 class Data(BaseModel):
     aircraft_type: str
     airline: str
     image_urls: List[str]
 
     class Config:
+        orm_mode = True
         schema_extra = {
             "example": {
+                # "id": "CKS852",
                 "aircraft_type": "Boeing 747-400 (quad-jet)",
                 "airline": "Kalitta Air",
                 "image_urls": [
@@ -28,32 +42,19 @@ class Data(BaseModel):
         }
 
 
-class FlightId:
-    def __init__(
-        self,
-        flight_id: str = Path(
-            ..., description="2 - 6 char. flight ID", example="CKS852"
-        ),
-    ):
-        self.id = flight_id
-        if not 1 < len(self.id) <= 6:
-            raise HTTPException(
-                status_code=422,
-                detail=f"flight_id: field must be 2 - 6 characters long",
-            )
-
-
-# class FlightId(BaseModel):
-#     id: str = Path(...)
-
-#     @validator("id")
-#     def validate(cls, val):
-#         if 1 < len(self.flight_id) <= 6:
-#             # raise HTTPException(
-#             #     status_code=400, detail="field must be 2 - 6 characters long"
-#             # )
-#             raise ValueError("field must be 2 - 6 characters long")
-#         return val
+# class FlightId:
+#     def __init__(
+#         self,
+#         flight_id: str = Path(
+#             ..., description="2 - 6 char. flight ID", example="CKS852"
+#         ),
+#     ):
+#         self.id = flight_id
+#         if not 1 < len(self.id) <= 6:
+#             raise HTTPException(
+#                 status_code=422,
+#                 detail=f"flight_id: field must be 2 - 6 characters long",
+#             )
 
 
 def get_data(id: str) -> Union[dict, bool]:
@@ -144,6 +145,7 @@ def get_data_requests(id: str):
         image_urls = [i["thumbnail"] for i in data["relatedThumbnails"]]
 
         return {
+            # "id": id,
             "aircraft_type": aircraft_type,
             "airline": airline,
             "image_urls": image_urls,
