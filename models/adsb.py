@@ -12,17 +12,17 @@ from fastapi import (
 )
 
 
-class FlightId(BaseModel):
-    id: str = Path(...)
+# class Flight(BaseModel):
+#     id: str = Path(...)
 
-    @validator("id")
-    def validate(cls, val):
-        if not 2 <= len(val) <= 6:
-            raise HTTPException(
-                status_code=400, detail="ensure this value is 2 - 6 characters long"
-            )
-            # raise ValueError("ensure this value is 2 - 6 characters long")
-        return val
+#     @validator("id")
+#     def validate(cls, val):
+#         if not 2 <= len(val) <= 6:
+#             raise HTTPException(
+#                 status_code=400, detail="ensure this value is 2 - 6 characters long"
+#             )
+#             # raise ValueError("ensure this value is 2 - 6 characters long")
+#         return val
 
 
 class Data(BaseModel):
@@ -43,19 +43,17 @@ class Data(BaseModel):
         }
 
 
-# class FlightId:
-#     def __init__(
-#         self,
-#         flight_id: str = Path(
-#             ..., description="2 - 6 char. flight ID", example="CKS852"
-#         ),
-#     ):
-#         self.id = flight_id
-#         if not 2 <= len(self.id) <= 6:
-#             raise HTTPException(
-#                 status_code=422,
-#                 detail=f"flight_id: ensure this value is 2 - 6 characters long",
-#             )
+class Flight:
+    def __init__(
+        self,
+        flight: str = Path(..., description="2 - 6 char. flight ID", example="CKS852"),
+    ):
+        self.id = flight
+        if not 2 <= len(self.id) <= 6:
+            raise HTTPException(
+                status_code=422,
+                detail=f"flight_id: ensure this value is 2 - 6 characters long",
+            )
 
 
 def get_data(id: str) -> Union[dict, bool]:
