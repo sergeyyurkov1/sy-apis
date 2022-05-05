@@ -107,7 +107,7 @@ def get_data(id: str) -> Union[dict, bool]:
         return False
 
 
-def get_data_requests(id: str) -> Union[dict, bool]:
+def get_data_requests(id: str, full: bool = False) -> Union[dict, bool]:
     """
     Gets `aircraft_type`, `airline`, and `image_urls` from a flight ID
     Uses `requests` library instead of `selenium`
@@ -137,17 +137,20 @@ def get_data_requests(id: str) -> Union[dict, bool]:
 
         data = json.loads(script)
 
-        data = data["flights"][next(iter(data["flights"]))]
+        if full == False:
+            data = data["flights"][next(iter(data["flights"]))]
 
-        aircraft_type = data["aircraft"]["friendlyType"]
-        airline = data["airline"]["shortName"]
-        image_urls = [i["thumbnail"] for i in data["relatedThumbnails"]]
+            aircraft_type = data["aircraft"]["friendlyType"]
+            airline = data["airline"]["shortName"]
+            image_urls = [i["thumbnail"] for i in data["relatedThumbnails"]]
 
-        return {
-            "aircraft_type": aircraft_type,
-            "airline": airline,
-            "image_urls": image_urls,
-        }
+            return {
+                "aircraft_type": aircraft_type,
+                "airline": airline,
+                "image_urls": image_urls,
+            }
+        else:
+            return data
 
     except Exception as e:
         import traceback

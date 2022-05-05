@@ -141,6 +141,13 @@ def custom_openapi():
             "properties": {"detail": {"title": "Error message", "type": "string"}},
         }
 
+        openapi_schema["components"]["schemas"]["FullData"] = {
+            "title": "FullData",
+            # "required": ["detail"],
+            "type": "object",
+            # "properties": {"detail": {"title": "Error message", "type": "string"}},
+        }
+
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
